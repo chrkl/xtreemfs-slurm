@@ -1,48 +1,55 @@
 Author: Robert Bärhold
 Date: 18.05.2015
 
-These scripts distrubes XtreemFS over allocated cumulus nodes.
+These scripts distrubes XtreemFS over allocated slurm nodes.
 
-First, please adjust the env.sh. Afterwards, use "xtreemfsCumulus.sh" to start
+First, please adjust the env.sh. Afterwards, use "xtreemfs_slurm.sh" to start
 and stop a distributed environment. It can also clone a git repository (clone)
-or clean (cleanup) the local xtreemfs folder for the current cumulus job on each
-allocated cumulus node.
+or clean (cleanup) the local xtreemfs folder for the current slurm job on each
+allocated slurm node.
 
 
 HELP:
 
-(1) How to allocate cumulus nodes:
+  (1) How to allocate slurm nodes:
 
-  Use the following statement, whereas -N* referes to the number of nodes,
-  which should be allocated.
+    Use the following statement, whereas -N* refers to the number of nodes,
+    which should be allocated.
   
-    # salloc -N1 -p CSR -A csr --exclusive
-
-
-(2) Something went wrong stopping the server. How to fix a broken server?
-
-  Connect to the specific node via the following statement:
-  
-    # srun -N1-1 --nodelist=cumu-n[xx] --pty bash
-  
-  If you want to stop a running server, locate the PID file and call "kill", e.g.:
-  
-    # cat /local/xtreemfs/xxxxx/MRC.pid
-    12345
-    # kill 12345 
-  
-  or short:
-  
-    # kill $(</local/xtreemfs/xxxxx/MRC.pid)
-  
-  If the current job folder has been deleted already, use the following 
-  statement to retrieve the process id and kill it.
-  
-    # ps -ax | grep java
-    # kill 12345
+      # salloc -N2 -p CSR -A csr --exclusive
     
- (3) On the cumulus nodes are still traces due to an error.
- 
-  Call "cleanup" or connect to each server (comp. (2)) and remove the folder by
+  (2) How to limit the number of OSD servers?
   
-    # rm -r /local/xtreemfs
+    Adjust the variable "NUMBER_OF_NODES" in the env.sh file to the number of 
+    OSD servers. Depending on "SAME_DIR_AND_MRC_NODE" add one or two to the number
+    of nodes. E.g. for four OSD server and a shared DIR and MRC server, set the 
+    NUMBER_OF_NODES to five (four + one).
+
+
+  (3) Something went wrong stopping the server. How to fix a broken server?
+
+    Connect to the specific node via the following statement:
+    
+      # srun -N1-1 --nodelist=cumu-n[xx] --pty bash
+    
+    If you want to stop a running server, locate the PID file and call "kill", e.g.:
+    
+      # cat /local/$USER/xtreemfs/xxxxx/MRC.pid
+      12345
+      # kill 12345 
+    
+    or short:
+    
+      # kill $(</local/$USER/xtreemfs/xxxxx/MRC.pid)
+    
+    If the current job folder has been deleted already, use the following 
+    statement to retrieve the process id and kill it.
+    
+      # ps -ax | grep java
+      # kill 12345
+    
+  (4) On the slurm nodes are still traces due to an error.
+ 
+    Call "cleanup" or connect to each server (comp. (2)) and remove the folder by
+  
+      # rm -r /local/$USER/xtreemfs

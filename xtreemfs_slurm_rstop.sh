@@ -5,10 +5,10 @@
 # Date: 18.05.2015
 #
 # Stop script for the Xtreemfs Server.
-# "RStop", cause it's called remote on a specific cumulus node.
+# "rstop", cause it's called remote on a specific slurm node.
 # 
 # Call: 
-# 	./xtreemfsCumulusRStop.sh /path/to/env.sh (DIR|MRC|OSD*) [-savelogs]
+# 	./xtreemfs_slurm_rstop.sh /path/to/env.sh (DIR|MRC|OSD*) [-savelogs]
 #
 # Parameter:
 # 	$1 path to source file (env.sh)
@@ -33,13 +33,13 @@ if [[ ! -f $SOURCE_FILE ]]; then
 fi
 source $SOURCE_FILE
 
-CURRENT_JOB_FOLDER=$(substitude_jobid "$CURRENT_JOB_FOLDER_GENERIC")
-CURRENT_LOCAL_FOLDER=$(substitude_jobid "$LOCAL_DIR_GENERIC")
+CURRENT_LOCAL_FOLDER=$(substitudeJobID "$LOCAL_DIR_GENERIC")
 
 # Save logs to current job folder
 function saveLogs() {
 
-  SERVER_LOG=$(substitude_name "$LOG_FILENAME_GENERIC" "$SERVER_NAME")
+  CURRENT_JOB_FOLDER=$(substitudeJobID "$CURRENT_JOB_FOLDER_GENERIC")
+  SERVER_LOG=$(substitudeName "$LOG_FILENAME_GENERIC" "$SERVER_NAME")
 
   # if server log exists, create backup folder (if not exists) and copy log
   if [[ -f "$CURRENT_LOCAL_FOLDER/$SERVER_LOG" ]]; then
@@ -56,10 +56,10 @@ function saveLogs() {
 # Killing the process of the xtreemfs server using the saved process id (pid)
 function stopServer() {
 
-  SERVER_PID=$(substitude_name "$PID_FILENAME_GENERIC" "$SERVER_NAME") 
+  SERVER_PID=$(substitudeName "$PID_FILENAME_GENERIC" "$SERVER_NAME") 
 
   if [[ -f "$CURRENT_LOCAL_FOLDER/$SERVER_PID" ]]; then
-    echo -n "Stopping XtreemFS Process: ${SERVER_PID%.*} ..."
+    outputDebug -n "Stopping XtreemFS Process: ${SERVER_PID%.*} ..."
     
     
     result=0
@@ -69,9 +69,9 @@ function stopServer() {
     fi
     
     if [[ "$result" -eq 0 ]]; then
-      echo "success"
+      outputDebug "success"
     else
-      echo "failed"
+      outputDebug "failed"
     fi
   else
     echo "PID file ($CURRENT_LOCAL_FOLDER/$SERVER_PID) not found!"

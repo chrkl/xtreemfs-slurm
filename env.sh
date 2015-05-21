@@ -4,7 +4,7 @@
 # Author: Robert Bärhold
 # Date: 18.05.2015
 #
-# Settings file for the XtreemFS Farm script on cumulus.
+# Settings file for the XtreemFS farm script on slurm.
 # This file serves as source file for the different scripts.
 # It contains user specific and general variables and shared functions.
 # Boolean variables should be use with "true" and "false"
@@ -15,27 +15,30 @@
  ##  System settings
 ####
 
+__DEBUG=true
+
+GENERATE_CONFIGS=true
 SAME_DIR_AND_MRC_NODE=true
 XTREEMFS_DIRECTORY="$(pwd)/xtreemfs"
-LOCAL_PATH="/local/xtreemfs"
+LOCAL_PATH="/local/$USER/xtreemfs"
 
 VOLUME_PARAMETER="" # e.g.: -a POSIX -p RAID0 -s 256 -w 1
-LOCAL_MOUNT_PATH="/local/xtreemfs/mount"
 
-NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES #`scontrol show hostnames | wc -l`
+NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
 
 ####
  ##  Generic name and path settings
 ####
 
-CURRENT_JOB_FOLDER_GENERIC="$(pwd)/cumulus-%JOBID%"
+CURRENT_JOB_FOLDER_GENERIC="$(pwd)/slurm-%JOBID%"
 LOCAL_DIR_GENERIC="$LOCAL_PATH/%JOBID%"
+LOCAL_MOUNT_PATH_GENERIC="$LOCAL_PATH/%JOBID%/mount"
 SERVICE_PREFIX_GENERIC="xtreemfs-%JOBID%"
 VOLUME_NAME_GENERIC="volume-%JOBID%"
 
-PID_FILENAME_GENERIC="%NAME%.pid"
 CONFIG_FILENAME_GENERIC="%NAME%.config"
 LOG_FILENAME_GENERIC="%NAME%.log"
+PID_FILENAME_GENERIC="%NAME%.pid"
 
 ####
  ##  GITHUB CLONE
@@ -68,19 +71,29 @@ JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/commons-codec-1.3.jar"
 
 
 # Substitudes %JOBID% inside argument $1 with the slurm environment job id
-function substitude_jobid() {
+function substitudeJobID() {
   echo "$1" | sed -e "s/%JOBID%/$SLURM_JOB_ID/g"
 }
 
 
 # Substitudes %name% in argument $1 with argument $2
-function substitude_name() {
+function substitudeName() {
   echo "$1" | sed -e "s/%NAME%/$2/g"
 }
 
 # Searchs for the line containing $2 inside file $1 and replaces the line with $3,
 # saving the new content back to file $1
-function substitude_property() {
+function substitudeProperty() {
   LINE_NUMBER=`grep -nr "$2" "$1" | cut -d : -f 1`
   printf '%s\n' "${LINE_NUMBER}s#.*#$3#" w  | ed -s $1
+}
+
+####
+ ##  Shared functions
+####
+
+function outputDebug() {
+  if [[ "$__DEBUG" == "true" ]]; then
+    echo $@
+  fi
 }
