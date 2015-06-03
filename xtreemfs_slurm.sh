@@ -194,9 +194,6 @@ function cleanUp() {
     outputDebug "Cleaning... $slurm_host of JOB: $SLURM_JOB_ID"
     srun -N1-1 --nodelist="$slurm_host" rm -r "$LOCAL_DIR"
   done
-  
-  outputDebug "Cleaning... `hostname` of JOB: $SLURM_JOB_ID"
-  rm -r "$LOCAL_DIR"
 
   return 0
 }
@@ -247,10 +244,9 @@ function stop() {
   echo "Stopping XtreemFS $SLURM_JOB_ID on slurm..."
 
   for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
-    srun -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
+    srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
-  $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   $XTREEMFS_DIRECTORY/cpp/build/rmfs.xtreemfs -f $MRC_HOSTNAME/$VOLUME_NAME
 
   stopServerAndSaveLogs $1
@@ -287,11 +283,8 @@ function start() {
   done
 
   for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
-    srun -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
-  
-  mkdir -p $LOCAL_MOUNT_PATH
-  $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   
   CURRENT_JOB_ENV_FILE=$(substitudeJobID "$CURRENT_JOB_ENV_FILE_GENERIC")
   echo "export WORK=$LOCAL_MOUNT_PATH" > "$CURRENT_JOB_ENV_FILE"
