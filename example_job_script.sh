@@ -7,6 +7,7 @@
 #SBATCH -N 2
 #SBATCH -p CSR
 #SBATCH -A csr
+#SBATCH --eclusive
 
 $HOME/xtreemfs-slurm/xtreemfs_slurm.sh start
 
@@ -18,10 +19,9 @@ srun hostname
 echo "Mount directory: $WORK"
 
 #############################################
-#					   #
-#	Place your commands here	   #
-#					   #
+#                                           #
+#     Place your commands here              #
+#                                           #
 #############################################
-
 
 $HOME/xtreemfs-slurm/xtreemfs_slurm.sh stop
