@@ -7,7 +7,7 @@
 #SBATCH -N 2
 #SBATCH -p CSR
 #SBATCH -A csr
-#SBATCH --eclusive
+#SBATCH --exclusive
 
 $HOME/xtreemfs-slurm/xtreemfs_slurm.sh start
 
