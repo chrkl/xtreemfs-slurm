@@ -244,7 +244,7 @@ function stop() {
   echo "Stopping XtreemFS $SLURM_JOB_ID on slurm..."
 
   for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
-    srun -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
+    srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
   $XTREEMFS_DIRECTORY/cpp/build/rmfs.xtreemfs -f $MRC_HOSTNAME/$VOLUME_NAME
@@ -283,8 +283,12 @@ function start() {
   done
 
   for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
-    srun -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
+  
+  CURRENT_JOB_ENV_FILE=$(substitudeJobID "$CURRENT_JOB_ENV_FILE_GENERIC")
+  echo "export WORK=$LOCAL_MOUNT_PATH" > "$CURRENT_JOB_ENV_FILE"
+  echo "export DEFAULT_VOLUME=pbrpc://$DIR_HOSTNAME/$VOLUME_NAME" >> "$CURRENT_JOB_ENV_FILE"
 
   outputSummary
 
@@ -309,6 +313,7 @@ function outputSummary() {
 
   echo "VOLUME: $(substitudeJobID $VOLUME_NAME_GENERIC)"
   echo "MOUNT PATH: $(substitudeJobID $LOCAL_MOUNT_PATH_GENERIC)"
+  echo "JOB ENV FILE: $(substitudeJobID $CURRENT_JOB_ENV_FILE_GENERIC)"
 
   return 0
 }

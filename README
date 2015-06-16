@@ -4,10 +4,13 @@ These scripts distributes XtreemFS over allocated slurm nodes.
 
 First, please adjust the env.sh. Afterwards, use "xtreemfs_slurm.sh" to start
 and stop a distributed environment. It can also clone a git repository (clone)
-or clean (cleanup) the local xtreemfs folder for the current slurm job on each
+or clean (cleanup) the local XtreemFS folder for the current slurm job on each
 allocated slurm node.
 
 2. How to allocate slurm nodes?
+
+An environment file will be created in the current job folder containing
+useful variables regarding the started XtreemFS environment.
 
 Use the following statement, whereas -N refers to the number of nodes,
 which should be allocated.
