@@ -287,8 +287,10 @@ function start() {
   done
   
   CURRENT_JOB_ENV_FILE=$(substitudeJobID "$CURRENT_JOB_ENV_FILE_GENERIC")
-  echo "export WORK=$LOCAL_MOUNT_PATH" > "$CURRENT_JOB_ENV_FILE"
-  echo "export DEFAULT_VOLUME=pbrpc://$DIR_HOSTNAME/$VOLUME_NAME" >> "$CURRENT_JOB_ENV_FILE"
+  echo "export WORK=\"$LOCAL_MOUNT_PATH\"" > "$CURRENT_JOB_ENV_FILE"
+  echo "export DEFAULT_VOLUME=\"xtreemfs://$DIR_HOSTNAME/$VOLUME_NAME\"" >> "$CURRENT_JOB_ENV_FILE"
+  echo "export NODES_XTREEMFS=\"$(scontrol show hostnames | head -n $NUMBER_OF_NODES | tr '\n' ' ' | sed '$s/.$//')\"" >> "$CURRENT_JOB_ENV_FILE"
+  echo "export NODES_REMAINING=\"$(scontrol show hostnames | tail -n +$(( $NUMBER_OF_NODES + 1 )) | tr '\n' ' ' | sed '$s/.$//')\"" >> "$CURRENT_JOB_ENV_FILE"
 
   outputSummary
 
