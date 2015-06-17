@@ -243,7 +243,7 @@ function stop() {
 
   echo "Stopping XtreemFS $SLURM_JOB_ID on slurm..."
 
-  for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
+  for slurm_host in `scontrol show hostnames`; do
     srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
@@ -278,11 +278,11 @@ function start() {
 
   $XTREEMFS_DIRECTORY/cpp/build/mkfs.xtreemfs $VOLUME_PARAMETER $MRC_HOSTNAME/$VOLUME_NAME
 
-  for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
+  for slurm_host in `scontrol show hostnames`; do
     srun -N1-1 --nodelist="$slurm_host" mkdir -p $LOCAL_MOUNT_PATH
   done
 
-  for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
+  for slurm_host in `scontrol show hostnames`; do
     srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
   
