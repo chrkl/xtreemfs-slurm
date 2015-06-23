@@ -286,7 +286,6 @@ function start() {
     srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
   
-  
   dir_hostname_ip=$(nslookup "$DIR_HOSTNAME" | awk -F': *' '/Address:/&&NR>2{print $2;exit}')
   CURRENT_JOB_ENV_FILE=$(substitudeJobID "$CURRENT_JOB_ENV_FILE_GENERIC")
   
