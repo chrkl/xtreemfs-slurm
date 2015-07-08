@@ -24,7 +24,10 @@ LOCAL_PATH="/local/$USER/xtreemfs"
 
 VOLUME_PARAMETER="" # e.g.: -a POSIX -p RAID0 -s 256 -w 1
 
-NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
+JOB_ID=$SLURM_JOB_ID # default the current ID
+NUMBER_OF_NODES=4 # $SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
+XTREEMFS_NODE_NAMES=`scontrol show hostnames` # flat list of node names seperated with space
+
 
 ####
  ##  Generic name and path settings
@@ -50,6 +53,18 @@ GITHUB_REPO=https://github.com/xtreemfs/xtreemfs.git
 REPO_CLONE_LOCATION=$XTREEMFS_DIRECTORY/..
 
 ####
+ ## Internal
+####
+
+SKIP_NODE_COUNT=0
+if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
+SKIP_NODE_COUNT=1
+fi
+
+
+XTREEMFS_NODES=($XTREEMFS_NODE_NAMES) # put into an array, easier access
+
+####
  ##  Java settings
 ####
 
@@ -73,7 +88,7 @@ JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/commons-codec-1.3.jar"
 
 # Substitudes %JOBID% inside argument $1 with the slurm environment job id
 function substitudeJobID() {
-  echo "$1" | sed -e "s/%JOBID%/$SLURM_JOB_ID/g"
+  echo "$1" | sed -e "s/%JOBID%/$JOB_ID/g"
 }
 
 

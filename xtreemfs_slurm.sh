@@ -121,7 +121,7 @@ function prepareConfigs() {
 
   substitudeProperty "$DIR_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
 
-  DIR_HOSTNAME=`scontrol show hostnames | head -n 1`
+  DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
 
   ## MRC
 
@@ -138,12 +138,7 @@ function prepareConfigs() {
   substitudeProperty "$MRC_CONFIG_FILE" "ssl.trusted_certs =" "ssl.trusted_certs = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/truststore/certs/trusted.jks"
 
   ## OSDs
-  SKIP_NODE_COUNT=1
-  if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
-    SKIP_NODE_COUNT=2
-  fi
-
-  for (( counter=1; $counter <= $(( $NUMBER_OF_NODES - $SKIP_NODE_COUNT )); counter++ )) {
+  for (( counter=1; $counter <= $(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) )); counter++ )) {
 
     OSDNAME="OSD${counter}"
 
@@ -164,19 +159,14 @@ function prepareConfigs() {
 
 # calls the start script remotely on each cumuslus node
 function startServer() {
-  DIR_HOSTNAME=`scontrol show hostnames | head -n 1`
+  DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
   srun -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "DIR" "DIR"
 
-  SKIP_NODE_COUNT=1
-  if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
-    SKIP_NODE_COUNT=2
-  fi
-
-  MRC_HOSTNAME=`scontrol show hostnames | head -n ${SKIP_NODE_COUNT} | tail -n 1`
+  MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
   srun -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "MRC" "MRC"
 
   counter=1
-  for osd_hostname in `scontrol show hostnames | head -n $NUMBER_OF_NODES | tail -n +$(( $SKIP_NODE_COUNT + 1 ))`; do
+  for osd_hostname in "${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}"; do
     OSDNAME="OSD${counter}"
     srun -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "OSD" "$OSDNAME"
     counter=$(($counter+1))
@@ -188,10 +178,10 @@ function startServer() {
 # deletes the local job folder on each slurm node
 function cleanUp() {
 
-  echo "Cleanup job folder"
+  echo "Cleanup job folder incl. mount point"
 
-  for slurm_host in `scontrol show hostnames | head -n $NUMBER_OF_NODES`; do
-    outputDebug "Cleaning... $slurm_host of JOB: $SLURM_JOB_ID"
+  for slurm_host in "${XTREEMFS_NODES[@]}"; do
+    outputDebug "Cleaning... $slurm_host of JOB: $JOB_ID"
     srun -N1-1 --nodelist="$slurm_host" rm -r "$LOCAL_DIR"
   done
 
@@ -207,22 +197,17 @@ function stopServerAndSaveLogs() {
     SAVE_LOGS="-savelogs"
   fi
 
-  SKIP_NODE_COUNT=1
-  if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
-    SKIP_NODE_COUNT=2
-  fi
-
   counter=1
-  for osd_hostname in `scontrol show hostnames | head -n $NUMBER_OF_NODES | tail -n +$(( $SKIP_NODE_COUNT + 1 ))`; do
+  for osd_hostname in "${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}"; do
     OSDNAME="OSD${counter}"
     srun -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "$OSDNAME" "$SAVE_LOGS"
     counter=$(($counter+1))
   done
 
-  MRC_HOSTNAME=`scontrol show hostnames | head -n ${SKIP_NODE_COUNT} | tail -n 1`
+  MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
   srun -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "MRC" "$SAVE_LOGS"
 
-  DIR_HOSTNAME=`scontrol show hostnames | head -n 1`
+  DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
   srun -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "DIR" "$SAVE_LOGS"
 
   return 0
@@ -233,17 +218,13 @@ function stop() {
 
   initializeEnvironment
 
-  SKIP_NODE_COUNT=1
-  if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
-    SKIP_NODE_COUNT=2
-  fi
-  MRC_HOSTNAME=`scontrol show hostnames | head -n ${SKIP_NODE_COUNT} | tail -n 1`
+  MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
   VOLUME_NAME=$(substitudeJobID "$VOLUME_NAME_GENERIC")
   LOCAL_MOUNT_PATH=$(substitudeJobID "$LOCAL_MOUNT_PATH_GENERIC")
 
-  echo "Stopping XtreemFS $SLURM_JOB_ID on slurm..."
+  echo "Stopping XtreemFS $JOB_ID on slurm..."
 
-  for slurm_host in `scontrol show hostnames`; do
+  for slurm_host in "${XTREEMFS_NODES[@]}"; do
     srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
@@ -261,28 +242,24 @@ function start() {
 
   initializeEnvironment
 
-  SKIP_NODE_COUNT=1
-  if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
-    SKIP_NODE_COUNT=2
-  fi
-  DIR_HOSTNAME=`scontrol show hostnames | head -n 1`
-  MRC_HOSTNAME=`scontrol show hostnames | head -n ${SKIP_NODE_COUNT} | tail -n 1`
+  DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
+  MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
 
   VOLUME_NAME=$(substitudeJobID "$VOLUME_NAME_GENERIC")
   LOCAL_MOUNT_PATH=$(substitudeJobID "$LOCAL_MOUNT_PATH_GENERIC")
 
-  echo "Starting XtreemFS $SLURM_JOB_ID on slurm..."
+  echo "Starting XtreemFS $JOB_ID on slurm..."
 
   prepareConfigs
   startServer
 
   $XTREEMFS_DIRECTORY/cpp/build/mkfs.xtreemfs $VOLUME_PARAMETER $MRC_HOSTNAME/$VOLUME_NAME
 
-  for slurm_host in `scontrol show hostnames`; do
+  for slurm_host in "${XTREEMFS_NODES[@]}"; do
     srun -N1-1 --nodelist="$slurm_host" mkdir -p $LOCAL_MOUNT_PATH
   done
 
-  for slurm_host in `scontrol show hostnames`; do
+  for slurm_host in "${XTREEMFS_NODES[@]}"; do
     srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
 
@@ -293,8 +270,8 @@ function start() {
 
   # This variable is set for running a Hadoop cluster
   echo "export DEFAULT_VOLUME=\"xtreemfs://$dir_hostname_ip:32638/$VOLUME_NAME\"" >> "$CURRENT_JOB_ENV_FILE"
-  echo "export NODES_XTREEMFS=\"$(scontrol show hostnames | head -n $NUMBER_OF_NODES | tr '\n' ' ' | sed '$s/.$//')\"" >> "$CURRENT_JOB_ENV_FILE"
-  echo "export NODES_REMAINING=\"$(scontrol show hostnames | tail -n +$(( $NUMBER_OF_NODES + 1 )) | tr '\n' ' ' | sed '$s/.$//')\"" >> "$CURRENT_JOB_ENV_FILE"
+  echo "export NODES_FILESYSTEM=\"${XTREEMFS_NODES[@]:0:$NUMBER_OF_NODES}\"" >> "$CURRENT_JOB_ENV_FILE"
+  echo "export NODES_REMAINING=\""${XTREEMFS_NODES[@]:$NUMBER_OF_NODES}"\"" >> "$CURRENT_JOB_ENV_FILE"
 
   outputSummary
 
@@ -303,16 +280,11 @@ function start() {
 
 function outputSummary() {
 
-  SKIP_NODE_COUNT=1
-  if [[ "$SAME_DIR_AND_MRC_NODE" == false ]]; then
-    SKIP_NODE_COUNT=2
-  fi
-
-  echo "DIR HOST: `scontrol show hostnames | head -n 1`"
-  echo "MRC HOST: `scontrol show hostnames | head -n ${SKIP_NODE_COUNT} | tail -n 1`"
+  echo "DIR HOST: ${XTREEMFS_NODES[@]:0:1}"
+  echo "MRC HOST: ${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
 
   counter=1
-  for osd_hostname in `scontrol show hostnames | head -n $NUMBER_OF_NODES | tail -n +$(( $SKIP_NODE_COUNT + 1 ))`; do
+  for osd_hostname in ${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}; do
     echo "OSD${counter} HOST: $osd_hostname"
     counter=$(($counter+1))
   done
