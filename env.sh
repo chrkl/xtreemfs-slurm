@@ -25,7 +25,7 @@ LOCAL_PATH="/local/$USER/xtreemfs"
 VOLUME_PARAMETER="" # e.g.: -a POSIX -p RAID0 -s 256 -w 1
 
 JOB_ID=$SLURM_JOB_ID # default the current ID
-NUMBER_OF_NODES=4 # $SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
+NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
 XTREEMFS_NODE_NAMES=`scontrol show hostnames` # flat list of node names seperated with space
 
 
