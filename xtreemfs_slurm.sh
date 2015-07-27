@@ -120,6 +120,9 @@ function prepareConfigs() {
   substitudeProperty "$DIR_CONFIG_FILE" "babudb.logDir" "babudb.logDir = $LOCAL_DIR/dir/db-log"
 
   substitudeProperty "$DIR_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
+  
+  substitudeProperty "$DIR_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_DIR_LEVEL"
+  substitudeProperty "$DIR_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_DIR_CATEGORIES"
 
   DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
 
@@ -132,6 +135,9 @@ function prepareConfigs() {
   substitudeProperty "$MRC_CONFIG_FILE" "uuid" "uuid = $SERVICE_PREFIX-MRC"
   substitudeProperty "$MRC_CONFIG_FILE" "babudb.baseDir" "babudb.baseDir = $LOCAL_DIR/mrc/datebase"
   substitudeProperty "$MRC_CONFIG_FILE" "babudb.logDir" "babudb.logDir = $LOCAL_DIR/mrc/db-log"
+
+  substitudeProperty "$MRC_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_MRC_LEVEL"
+  substitudeProperty "$MRC_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_MRC_CATEGORIES"
 
   substitudeProperty "$MRC_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
   substitudeProperty "$MRC_CONFIG_FILE" "ssl.service_creds =" "ssl.service_creds = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/truststore/certs/mrc.p12"
@@ -148,6 +154,9 @@ function prepareConfigs() {
     substitudeProperty "$OSD_CONFIG_FILE" "dir_service.host" "dir_service.host = $DIR_HOSTNAME"
     substitudeProperty "$OSD_CONFIG_FILE" "uuid" "uuid = $SERVICE_PREFIX-$OSDNAME"
     substitudeProperty "$OSD_CONFIG_FILE" "object_dir" "object_dir = $LOCAL_DIR/$OSDNAME/objs"
+
+    substitudeProperty "$OSD_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_OSD_LEVEL"
+    substitudeProperty "$OSD_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_OSD_CATEGORIES"
 
     substitudeProperty "$OSD_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
     substitudeProperty "$OSD_CONFIG_FILE" "ssl.service_creds =" "ssl.service_creds = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/truststore/certs/osd.p12"
@@ -225,6 +234,11 @@ function stop() {
   echo "Stopping XtreemFS $JOB_ID on slurm..."
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
+    if [[ ! -z "$1" ]] && [[ "$1" == "-savelogs" ]] && [[ "$DEBUG_CLIENT_ACTIVE" == true ]]; then
+      mkdir -p "$CURRENT_JOB_FOLDER/savedLogs"
+      srun -k -N1-1 --nodelist="$slurm_host" cp "$LOCAL_DIR/$slurm_host-client.log" "$CURRENT_JOB_FOLDER/savedLogs/$slurm_host-client.log"
+    fi
+
     srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
@@ -260,7 +274,13 @@ function start() {
   done
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
-    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+
+    mount_options=""
+    if [[ "$DEBUG_CLIENT_ACTIVE" == true ]]; then
+      mount_options="-d $DEBUG_CLIENT_LEVEL -l $LOCAL_DIR/$slurm_host-client.log"
+    fi
+
+    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $mount_options $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
 
   dir_hostname_ip=$(nslookup "$DIR_HOSTNAME" | awk -F': *' '/Address:/&&NR>2{print $2;exit}')
