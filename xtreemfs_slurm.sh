@@ -234,6 +234,11 @@ function stop() {
   echo "Stopping XtreemFS $JOB_ID on slurm..."
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
+    if [[ ! -z "$1" ]] && [[ "$1" == "-savelogs" ]] && [[ "$DEBUG_CLIENT_ACTIVE" == true ]]; then
+      mkdir -p "$CURRENT_JOB_FOLDER/savedLogs"
+      srun -k -N1-1 --nodelist="$slurm_host" cp "$LOCAL_DIR/$slurm_host-client.log" "$CURRENT_JOB_FOLDER/savedLogs/$slurm_host-client.log"
+    fi
+
     srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
@@ -269,7 +274,13 @@ function start() {
   done
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
-    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+
+    mount_options=""
+    if [[ "$DEBUG_CLIENT_ACTIVE" == true ]]; then
+      mount_options="-d $DEBUG_CLIENT_LEVEL -l $LOCAL_DIR/$slurm_host-client.log"
+    fi
+
+    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $mount_options $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
   done
 
   dir_hostname_ip=$(nslookup "$DIR_HOSTNAME" | awk -F': *' '/Address:/&&NR>2{print $2;exit}')

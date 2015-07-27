@@ -48,6 +48,9 @@ PID_FILENAME_GENERIC="%NAME%.pid"
  ## DEBUG Settings
 ####
 
+DEBUG_CLIENT_ACTIVE=false
+DEBUG_CLIENT_LEVEL="DEBUG"
+
 #Default for all servers: 6 & all
 DEBUG_DIR_LEVEL=6
 DEBUG_DIR_CATEGORIES="all"
