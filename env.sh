@@ -45,6 +45,18 @@ LOG_FILENAME_GENERIC="%NAME%.log"
 PID_FILENAME_GENERIC="%NAME%.pid"
 
 ####
+ ## DEBUG Settings
+####
+
+#Default for all servers: 6 & all
+DEBUG_DIR_LEVEL=6
+DEBUG_DIR_CATEGORIES="all"
+DEBUG_MRC_LEVEL=6
+DEBUG_MRC_CATEGORIES="all"
+DEBUG_OSD_LEVEL=6
+DEBUG_OSD_CATEGORIES="all"
+
+####
  ##  GITHUB CLONE
 ####
 

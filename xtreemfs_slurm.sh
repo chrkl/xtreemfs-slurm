@@ -120,6 +120,9 @@ function prepareConfigs() {
   substitudeProperty "$DIR_CONFIG_FILE" "babudb.logDir" "babudb.logDir = $LOCAL_DIR/dir/db-log"
 
   substitudeProperty "$DIR_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
+  
+  substitudeProperty "$DIR_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_DIR_LEVEL"
+  substitudeProperty "$DIR_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_DIR_CATEGORIES"
 
   DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
 
@@ -132,6 +135,9 @@ function prepareConfigs() {
   substitudeProperty "$MRC_CONFIG_FILE" "uuid" "uuid = $SERVICE_PREFIX-MRC"
   substitudeProperty "$MRC_CONFIG_FILE" "babudb.baseDir" "babudb.baseDir = $LOCAL_DIR/mrc/datebase"
   substitudeProperty "$MRC_CONFIG_FILE" "babudb.logDir" "babudb.logDir = $LOCAL_DIR/mrc/db-log"
+
+  substitudeProperty "$MRC_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_MRC_LEVEL"
+  substitudeProperty "$MRC_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_MRC_CATEGORIES"
 
   substitudeProperty "$MRC_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
   substitudeProperty "$MRC_CONFIG_FILE" "ssl.service_creds =" "ssl.service_creds = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/truststore/certs/mrc.p12"
@@ -148,6 +154,9 @@ function prepareConfigs() {
     substitudeProperty "$OSD_CONFIG_FILE" "dir_service.host" "dir_service.host = $DIR_HOSTNAME"
     substitudeProperty "$OSD_CONFIG_FILE" "uuid" "uuid = $SERVICE_PREFIX-$OSDNAME"
     substitudeProperty "$OSD_CONFIG_FILE" "object_dir" "object_dir = $LOCAL_DIR/$OSDNAME/objs"
+
+    substitudeProperty "$OSD_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_OSD_LEVEL"
+    substitudeProperty "$OSD_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_OSD_CATEGORIES"
 
     substitudeProperty "$OSD_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
     substitudeProperty "$OSD_CONFIG_FILE" "ssl.service_creds =" "ssl.service_creds = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/truststore/certs/osd.p12"
