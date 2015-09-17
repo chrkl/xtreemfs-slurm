@@ -17,7 +17,6 @@
 #
 ###############################################################################
 
-set -e
 shopt -s extglob
 
 BASEDIR=$(dirname $0)
@@ -169,19 +168,31 @@ function prepareConfigs() {
 # calls the start script remotely on each cumuslus node
 function startServer() {
   DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
-  srun -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "DIR" "DIR"
+  srun -k -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "DIR" "DIR"
+  stopOnStartError $?
 
   MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
-  srun -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "MRC" "MRC"
+  srun -k -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "MRC" "MRC"
+  stopOnStartError $?
 
   counter=1
   for osd_hostname in "${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}"; do
     OSDNAME="OSD${counter}"
-    srun -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "OSD" "$OSDNAME"
+    srun -k -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "OSD" "$OSDNAME"
+    stopOnStartError $?
     counter=$(($counter+1))
   done
 
   return 0
+}
+
+function stopOnStartError(){
+
+  if [[ "$1" == "1" ]]; then
+    echo "An error occured during startup. XtreemFS will be stopped and the logs will be saved."
+    stop "-savelogs"
+    exit 1
+  fi
 }
 
 # deletes the local job folder on each slurm node
@@ -191,7 +202,7 @@ function cleanUp() {
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
     outputDebug "Cleaning... $slurm_host of JOB: $JOB_ID"
-    srun -N1-1 --nodelist="$slurm_host" rm -r "$LOCAL_DIR"
+    srun -k -N1-1 --nodelist="$slurm_host" rm -r "$LOCAL_DIR"
   done
 
   return 0
@@ -209,15 +220,15 @@ function stopServerAndSaveLogs() {
   counter=1
   for osd_hostname in "${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}"; do
     OSDNAME="OSD${counter}"
-    srun -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "$OSDNAME" "$SAVE_LOGS"
+    srun -k -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "$OSDNAME" "$SAVE_LOGS"
     counter=$(($counter+1))
   done
 
   MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
-  srun -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "MRC" "$SAVE_LOGS"
+  srun -k -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "MRC" "$SAVE_LOGS"
 
   DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
-  srun -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "DIR" "$SAVE_LOGS"
+  srun -k -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "DIR" "$SAVE_LOGS"
 
   return 0
 }
@@ -230,6 +241,7 @@ function stop() {
   MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
   VOLUME_NAME=$(substitudeJobID "$VOLUME_NAME_GENERIC")
   LOCAL_MOUNT_PATH=$(substitudeJobID "$LOCAL_MOUNT_PATH_GENERIC")
+  CURRENT_JOB_FOLDER=$(substitudeJobID "$CURRENT_JOB_FOLDER_GENERIC")
 
   echo "Stopping XtreemFS $JOB_ID on slurm..."
 
@@ -239,7 +251,7 @@ function stop() {
       srun -k -N1-1 --nodelist="$slurm_host" cp "$LOCAL_DIR/$slurm_host-client.log" "$CURRENT_JOB_FOLDER/savedLogs/$slurm_host-client.log"
     fi
 
-    srun -k -N1-1 --nodelist="$slurm_host"   $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
+    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/bin/umount.xtreemfs "$LOCAL_MOUNT_PATH"
   done
 
   $XTREEMFS_DIRECTORY/cpp/build/rmfs.xtreemfs -f $MRC_HOSTNAME/$VOLUME_NAME
@@ -268,9 +280,11 @@ function start() {
   startServer
 
   $XTREEMFS_DIRECTORY/cpp/build/mkfs.xtreemfs $VOLUME_PARAMETER $MRC_HOSTNAME/$VOLUME_NAME
+  stopOnStartError $?
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
-    srun -N1-1 --nodelist="$slurm_host" mkdir -p $LOCAL_MOUNT_PATH
+    srun -k -N1-1 --nodelist="$slurm_host" mkdir -p $LOCAL_MOUNT_PATH
+    stopOnStartError $?
   done
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
@@ -281,6 +295,7 @@ function start() {
     fi
 
     srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $mount_options $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+    stopOnStartError $?
   done
 
   dir_hostname_ip=$(nslookup "$DIR_HOSTNAME" | awk -F': *' '/Address:/&&NR>2{print $2;exit}')
