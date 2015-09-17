@@ -23,6 +23,7 @@ XTREEMFS_DIRECTORY="$HOME/xtreemfs"
 LOCAL_PATH="/local/$USER/xtreemfs"
 
 VOLUME_PARAMETER="" # e.g.: -a POSIX -p RAID0 -s 256 -w 1
+KILLTERM="-SIGKILL" # or -SIGTERM
 
 JOB_ID=$SLURM_JOB_ID # default the current ID
 NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)

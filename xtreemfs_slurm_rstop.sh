@@ -64,7 +64,7 @@ function stopServer() {
     
     result=0
     if [[ -e "/proc/$(<"$CURRENT_LOCAL_FOLDER/$SERVER_PID")" ]]; then
-      kill $(<"$CURRENT_LOCAL_FOLDER/$SERVER_PID")
+      kill $KILLTERM $(<"$CURRENT_LOCAL_FOLDER/$SERVER_PID")
       result=$?
     fi
     
