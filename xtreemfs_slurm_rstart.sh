@@ -17,9 +17,9 @@
 #
 ###############################################################################
 
-if [[ "$#" -ne 3 ]]; then
+if [[ ! "$#" -ge 2 ]]; then
   echo "Wrong parameter count!"
-  echo "Expecting 3 arguments; found: $#"
+  echo "Expecting at least 2 arguments; found: $#"
   exit 1
 fi
 
@@ -71,6 +71,33 @@ function startServer() {
   return 0
 }
 
-startServer
+function startWatchdog() {
+  WATCHDOG_PID=$(substitudeName "$PID_FILENAME_GENERIC" "watchdog")
+  CURRENT_LOCAL_FOLDER=$(substitudeJobID "$LOCAL_DIR_GENERIC")
+  mkdir -p $CURRENT_LOCAL_FOLDER
+
+  outputDebug -n "Starting Watchdog for XtreemFS on $(hostname) ..."
+
+  BASEDIR=$(dirname $SOURCE_FILE)
+  nohup $BASEDIR/xtreemfs_slurm_watchdog.sh $SOURCE_FILE > /dev/null 2>&1 &
+  PROCPID="$!"
+  echo "$PROCPID" > "$CURRENT_LOCAL_FOLDER/$WATCHDOG_PID"
+  sleep 1s
+
+  if [[ -e "/proc/$PROCPID" ]]; then
+   outputDebug "success"
+  else
+   outputDebug "failed"
+   return 1
+  fi
+
+  return 0
+}
+
+if [[ "$SERVER_TYPE" == "watchdog" ]]; then
+  startWatchdog
+else
+  startServer
+fi
 
 exit $?

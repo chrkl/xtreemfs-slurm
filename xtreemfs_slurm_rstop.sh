@@ -81,7 +81,39 @@ function stopServer() {
   return 0
 }
 
-stopServer
+# stop watchdog
+function stopWatchdog(){
+
+  WATCHDOG_PID=$(substitudeName "$PID_FILENAME_GENERIC" "watchdog")
+
+  if [[ -f "$CURRENT_LOCAL_FOLDER/$WATCHDOG_PID" ]]; then
+    outputDebug -n "Stopping Watchdog for XtreemFS on $(hostname) ..."
+
+    result=0
+    if [[ -e "/proc/$(<"$CURRENT_LOCAL_FOLDER/$WATCHDOG_PID")" ]]; then
+      kill -SIGKILL $(<"$CURRENT_LOCAL_FOLDER/$WATCHDOG_PID")
+      result=$?
+    fi
+
+    if [[ "$result" -eq 0 ]]; then
+      outputDebug "success"
+    else
+      outputDebug "failed"
+    fi
+  else
+    echo "PID file ($CURRENT_LOCAL_FOLDER/$WATCHDOG_PID) not found!"
+    return 1
+  fi
+
+  return 0
+}
+
+if [[ "$SERVER_NAME" == "watchdog" ]]; then
+  stopWatchdog
+else
+  stopServer
+fi
+
 RESULT=$?
 
 if [[ ! -z "$SAVE_LOG" ]] && [[ "$SAVE_LOG" == "-savelogs" ]]; then

@@ -245,6 +245,11 @@ function stop() {
 
   echo "Stopping XtreemFS $JOB_ID on slurm..."
 
+  # stop watchdog
+  for slurm_host in "${XTREEMFS_NODES[@]}"; do
+   srun -k -N1-1 --nodelist=$slurm_host $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "watchdog"
+  done
+
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
     if [[ ! -z "$1" ]] && [[ "$1" == "-savelogs" ]] && [[ "$DEBUG_CLIENT_ACTIVE" == true ]]; then
       mkdir -p "$CURRENT_JOB_FOLDER/savedLogs"
@@ -282,11 +287,13 @@ function start() {
   $XTREEMFS_DIRECTORY/cpp/build/mkfs.xtreemfs $VOLUME_PARAMETER $MRC_HOSTNAME/$VOLUME_NAME
   stopOnStartError $?
 
+  # create local mount path on each node
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
     srun -k -N1-1 --nodelist="$slurm_host" mkdir -p $LOCAL_MOUNT_PATH
     stopOnStartError $?
   done
 
+  # mount volume on each node
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
 
     mount_options=""
@@ -295,6 +302,12 @@ function start() {
     fi
 
     srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $mount_options $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+    stopOnStartError $?
+  done
+
+  # start watchdog
+  for slurm_host in "${XTREEMFS_NODES[@]}"; do
+    srun -k -N1-1 --nodelist="$slurm_host" $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "watchdog"
     stopOnStartError $?
   done
 

@@ -29,6 +29,12 @@ JOB_ID=$SLURM_JOB_ID # default the current ID
 NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
 XTREEMFS_NODE_NAMES=`scontrol show hostnames` # flat list of node names seperated with space
 
+####
+ ## Watchdog Settings
+####
+
+WATCHDOG_INTERVAL=5 # in seconds
+WATCHDOG_SAVELOGS="" # "-savelogs"
 
 ####
  ##  Generic name and path settings
@@ -43,7 +49,8 @@ VOLUME_NAME_GENERIC="volume-%JOBID%"
 
 CONFIG_FILENAME_GENERIC="%NAME%.config"
 LOG_FILENAME_GENERIC="%NAME%.log"
-PID_FILENAME_GENERIC="%NAME%.pid"
+PID_FILENAME_EXTENSION=".pid"
+PID_FILENAME_GENERIC="%NAME%$PID_FILENAME_EXTENSION"
 
 ####
  ## DEBUG Settings
