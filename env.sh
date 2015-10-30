@@ -29,6 +29,8 @@ JOB_ID=$SLURM_JOB_ID # default the current ID
 NUMBER_OF_NODES=$SLURM_JOB_NUM_NODES # or Number of OSD nodes + DIR ( + seperate MRC)
 XTREEMFS_NODE_NAMES=`scontrol show hostnames` # flat list of node names seperated with space
 
+MOUNT_OPTIONS=""
+
 ####
  ## Watchdog Settings
 ####

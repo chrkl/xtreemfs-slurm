@@ -119,7 +119,7 @@ function prepareConfigs() {
   substitudeProperty "$DIR_CONFIG_FILE" "babudb.logDir" "babudb.logDir = $LOCAL_DIR/dir/db-log"
 
   substitudeProperty "$DIR_CONFIG_FILE" "policy_dir" "policy_dir = $XTREEMFS_DIRECTORY/etc/xos/xtreemfs/policies"
-  
+
   substitudeProperty "$DIR_CONFIG_FILE" "#debug.level =" "debug.level = $DEBUG_DIR_LEVEL"
   substitudeProperty "$DIR_CONFIG_FILE" "#debug.categories =" "debug.categories = $DEBUG_DIR_CATEGORIES"
 
@@ -296,12 +296,11 @@ function start() {
   # mount volume on each node
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
 
-    mount_options=""
     if [[ "$DEBUG_CLIENT_ACTIVE" == true ]]; then
-      mount_options="-d $DEBUG_CLIENT_LEVEL -l $LOCAL_DIR/$slurm_host-client.log"
+      MOUNT_OPTIONS="$MOUNT_OPTIONS -d $DEBUG_CLIENT_LEVEL -l $LOCAL_DIR/$slurm_host-client.log"
     fi
 
-    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $mount_options $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
+    srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $MOUNT_OPTIONS $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
     stopOnStartError $?
   done
 
