@@ -106,6 +106,8 @@ JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/jdmkrt.jar:"
 JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/jdmktk.jar:"
 JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/commons-codec-1.3.jar"
 
+JAVA_PROPERTIES=""  # e.g.: -Dfoo=bar
+
 ####
  ##  Substitute functions for generic variables
 ####
