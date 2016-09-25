@@ -24,8 +24,8 @@ if [[ "$#" -ne 1 ]]; then
   exit 1
 fi
 
+BASEDIR=$(dirname $0)
 SOURCE_FILE="$1"
-BASEDIR=$(dirname $SOURCE_FILE)
 
 if [[ ! -f $SOURCE_FILE ]]; then
   echo "SOURCE_FILE $SOURCE_FILE not found!"

@@ -9,7 +9,7 @@
 # xtreemfs folder on each allocated node.
 #
 # Call:
-# 	./xtreemfs_slurm.sh (start|stop [-savelogs]|cleanup|clone)|
+# 	./xtreemfs_slurm.sh [env.sh] (start|stop [-savelogs]|cleanup|clone)|
 #
 # Parameter:
 # 	$1 [optional] -savelogs
@@ -20,7 +20,12 @@
 shopt -s extglob
 
 BASEDIR=$(dirname $0)
+
 SOURCE_FILE=$BASEDIR/env.sh
+if [[ "$1" = *.sh ]] && [[ -f "$1" ]]; then
+  SOURCE_FILE="$1"
+  shift
+fi
 source $SOURCE_FILE
 
 LOCAL_DIR=""
@@ -168,17 +173,17 @@ function prepareConfigs() {
 # calls the start script remotely on each cumuslus node
 function startServer() {
   DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
-  srun -k -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "DIR" "DIR"
+  srun -k -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$SOURCE_FILE" "DIR" "DIR"
   stopOnStartError $?
 
   MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
-  srun -k -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "MRC" "MRC"
+  srun -k -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstart.sh "$SOURCE_FILE" "MRC" "MRC"
   stopOnStartError $?
 
   counter=1
   for osd_hostname in "${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}"; do
     OSDNAME="OSD${counter}"
-    srun -k -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "OSD" "$OSDNAME"
+    srun -k -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstart.sh "$SOURCE_FILE" "OSD" "$OSDNAME"
     stopOnStartError $?
     counter=$(($counter+1))
   done
@@ -220,15 +225,15 @@ function stopServerAndSaveLogs() {
   counter=1
   for osd_hostname in "${XTREEMFS_NODES[@]:$(( $SKIP_NODE_COUNT + 1 )):$(( $NUMBER_OF_NODES - ($SKIP_NODE_COUNT + 1) ))}"; do
     OSDNAME="OSD${counter}"
-    srun -k -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "$OSDNAME" "$SAVE_LOGS"
+    srun -k -N1-1 --nodelist=$osd_hostname $BASEDIR/xtreemfs_slurm_rstop.sh "$SOURCE_FILE" "$OSDNAME" "$SAVE_LOGS"
     counter=$(($counter+1))
   done
 
   MRC_HOSTNAME="${XTREEMFS_NODES[@]:$SKIP_NODE_COUNT:1}"
-  srun -k -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "MRC" "$SAVE_LOGS"
+  srun -k -N1-1 --nodelist=$MRC_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$SOURCE_FILE" "MRC" "$SAVE_LOGS"
 
   DIR_HOSTNAME="${XTREEMFS_NODES[@]:0:1}"
-  srun -k -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "DIR" "$SAVE_LOGS"
+  srun -k -N1-1 --nodelist=$DIR_HOSTNAME $BASEDIR/xtreemfs_slurm_rstop.sh "$SOURCE_FILE" "DIR" "$SAVE_LOGS"
 
   return 0
 }
@@ -247,7 +252,7 @@ function stop() {
 
   # stop watchdog
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
-   srun -k -N1-1 --nodelist=$slurm_host $BASEDIR/xtreemfs_slurm_rstop.sh "$BASEDIR/env.sh" "watchdog"
+   srun -k -N1-1 --nodelist=$slurm_host $BASEDIR/xtreemfs_slurm_rstop.sh "$SOURCE_FILE" "watchdog"
   done
 
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
@@ -307,7 +312,7 @@ function start() {
 
   # start watchdog
   for slurm_host in "${XTREEMFS_NODES[@]}"; do
-    srun -k -N1-1 --nodelist="$slurm_host" $BASEDIR/xtreemfs_slurm_rstart.sh "$BASEDIR/env.sh" "watchdog"
+    srun -k -N1-1 --nodelist="$slurm_host" $BASEDIR/xtreemfs_slurm_rstart.sh "$SOURCE_FILE" "watchdog"
     stopOnStartError $?
   done
 
@@ -364,7 +369,7 @@ case "$1" in
     result=$?
     ;;
    *)
-    echo -e "Usage: $0 {start|stop [-savelogs]|cleanup|clone}\n"
+    echo -e "Usage: $0 [env.sh] {start|stop [-savelogs]|cleanup|clone}\n"
     result=1
     ;;
 esac

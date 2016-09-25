@@ -23,6 +23,7 @@ if [[ ! "$#" -ge 2 ]]; then
   exit 1
 fi
 
+BASEDIR=$(dirname $0)
 SOURCE_FILE="$1"
 SERVER_NAME="$2"
 SAVE_LOG="$3"

@@ -23,6 +23,7 @@ if [[ ! "$#" -ge 2 ]]; then
   exit 1
 fi
 
+BASEDIR=$(dirname $0)
 SOURCE_FILE="$1"
 SERVER_TYPE="$2"
 SERVER_NAME="$3"
@@ -78,7 +79,6 @@ function startWatchdog() {
 
   outputDebug -n "Starting Watchdog for XtreemFS on $(hostname) ..."
 
-  BASEDIR=$(dirname $SOURCE_FILE)
   nohup $BASEDIR/xtreemfs_slurm_watchdog.sh $SOURCE_FILE > /dev/null 2>&1 &
   PROCPID="$!"
   echo "$PROCPID" > "$CURRENT_LOCAL_FOLDER/$WATCHDOG_PID"
