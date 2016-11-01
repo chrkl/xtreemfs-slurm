@@ -67,9 +67,9 @@ function initializeEnvironment() {
   fi
 
 
-  if [[ ! -d "$XTREEMFS_DIRECTORY" ]] || [[ ! -f "$XTREEMFS_DIRECTORY/java/servers/dist/XtreemFS.jar" ]]; then
+  if [[ ! -d "$XTREEMFS_DIRECTORY" ]] || [[ ! -f "$XTREEMFS_DIRECTORY/java/xtreemfs-servers/target/xtreemFS.jar" ]]; then
     echo -n "XtreemFS Directory $XTREEMFS_DIRECTORY does not exist"
-    echo " or doesn't include XtreemFS (missing ./java/XtreemFS.jar)."
+    echo " or doesn't include XtreemFS (missing ./java/xtreemfs-servers/target/xtreemf.jar)."
     echo "Please adjust the SOURCE_FILE ($SOURCE_FILE) or the XTREEMFS_DIRECTORY ($XTREEMFS_DIRECTORY)."
     exit 1
   fi
