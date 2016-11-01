@@ -5,7 +5,7 @@
 
 #SBATCH -J xtreemfs_example_script
 #SBATCH -N 2
-#SBATCH -p CSR
+#SBATCH -p CUMU
 #SBATCH -A csr
 #SBATCH --exclusive
 
