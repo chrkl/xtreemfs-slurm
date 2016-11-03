@@ -97,7 +97,7 @@ if [[ -z "$JAVA_HOME" ]]; then
   export JAVA_HOME=/usr
 fi
 
-JAVA_CLASSPATH="XTREEMFS_DIRECTORY/java/xtreemfs-servers/target/xtreemfs.jar"
+JAVA_CLASSPATH="$XTREEMFS_DIRECTORY/java/xtreemfs-servers/target/xtreemfs.jar"
 
 JAVA_PROPERTIES=""  # e.g.: -Dfoo=bar
 
