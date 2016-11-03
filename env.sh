@@ -97,14 +97,7 @@ if [[ -z "$JAVA_HOME" ]]; then
   export JAVA_HOME=/usr
 fi
 
-JAVA_CLASSPATH="$XTREEMFS_DIRECTORY/java/servers/dist/XtreemFS.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/BabuDB.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/flease/dist/Flease.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/protobuf-java-2.5.0.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/foundation/dist/Foundation.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/jdmkrt.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/jdmktk.jar:"
-JAVA_CLASSPATH+="$XTREEMFS_DIRECTORY/java/lib/commons-codec-1.3.jar"
+JAVA_CLASSPATH="XTREEMFS_DIRECTORY/java/xtreemfs-servers/target/xtreemfs.jar"
 
 JAVA_PROPERTIES=""  # e.g.: -Dfoo=bar
 
