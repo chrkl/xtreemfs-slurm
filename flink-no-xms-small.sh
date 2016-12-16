@@ -29,6 +29,8 @@ if [[ -z $SLURM_JOB_ID ]]; then
 fi
 
 export FLINK_HOME=/scratch/bzcseibe/geoms/gms-software2/nov-2016/pyflink/flink-dist/target/flink-1.1-SNAPSHOT-bin/flink-1.1-SNAPSHOT
+export python=/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/bin/python
+export python3=/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/bin/python
 
 LOCAL_TMP_DIR="/local/$USER/flink-tmp"
 
@@ -48,12 +50,17 @@ cp -R "${FLINK_HOME}"/conf "${FLINK_CONF_DIR}"
 # create configuration file for the flink gms job
 
 CURR_DIR=(pwd)
-FLINK_JOB_CONF_FILE=$FLINK_HOME/gms-job.cfg
+FLINK_JOB_CONF_FILE=$FLINK_CONF_DIR/gms-job.cfg
 
+####  /bin/bash
 which python
 
+echo "srun which python after srun /bin/bash yields:"
+srun /bin/bash
+srun which python
+
 cd /home/csr/bzcseibe/git/geoms-felix/python/fjcg
-python fjcg.py $SATELLITE_DATA_ORIGIN $CLASSIFICATION_OUTPUT_FOLDER $FLINK_JOB_CONF_FILE "${SHAPE[@]}"
+python fjcg.py $SATELLITE_DATA_ORIGIN $CLASSIFICATION_OUTPUT_FOLDER $FLINK_JOB_CONF_FILE "${SHAPE[@]}" 
 
 cd $pwd
 
@@ -117,7 +124,7 @@ echo "Starting master on ${FLINK_MASTER} and slaves on ${FLINK_SLAVES[@]}."
 srun --nodes=1-1 --nodelist=${FLINK_MASTER} "${FLINK_HOME}"/bin/jobmanager.sh start cluster
 
 for slave in ${FLINK_SLAVES[@]}; do
-#    srun --nodes=1-1 --nodelist=$slave mkdir $LOCAL_TMP_DIR
+    srun --nodes=1-1 --nodelist=$slave mkdir $LOCAL_TMP_DIR
 #    srun --nodes=1-1 --nodelist=$slave /bin/hostname
     srun --nodes=1-1 --nodelist=$slave "${FLINK_HOME}"/bin/taskmanager.sh start
 done

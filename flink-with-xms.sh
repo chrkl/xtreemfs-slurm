@@ -18,7 +18,7 @@
 ################################################################################
 
 #SBATCH --job-name flink-slurm
-#SBATCH --nodes=2
+#SBATCH --nodes=3
 #SBATCH --exclusive
 
 USAGE="Usage: sbatch -p<PARTITION> -A<ACCOUNT> flink-slurm-example.sh"
@@ -29,6 +29,8 @@ if [[ -z $SLURM_JOB_ID ]]; then
 fi
 
 export FLINK_HOME=/scratch/bzcseibe/geoms/gms-software2/nov-2016/pyflink/flink-dist/target/flink-1.1-SNAPSHOT-bin/flink-1.1-SNAPSHOT
+export python=/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/bin/python
+export python3=/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/bin/python
 
 LOCAL_TMP_DIR="/local/$USER/flink-tmp"
 
@@ -46,6 +48,8 @@ $HOME/xtreemfs-slurm/xtreemfs_slurm.sh start
 CONFIG_FOLDER=$(pwd)/slurm-$SLURM_JOB_ID
 source $CONFIG_FOLDER/job_env.sh
 
+echo "work: "$WORK
+
 # move input data to xtreemfs
 srun -N1-1 mkdir $WORK/$SATELLITE_DATA_SET
 srun -N1-1 mkdir $WORK/$LUCAS_DATA_SET
@@ -55,18 +59,19 @@ for SHAPE_NUMBER in ${SHAPE_NUMBERS[@]}; do
     srun -N1-1 mkdir $WORK/$LUCAS_DATA_SET/$SHAPE_NUMBER
 done
 
-du -sh $WORK
-
 ### TODO fix this!!!!! this is a very mean hack! ###
 for tile in ${SHAPE[@]}; do
-    srun -N1-1 cp -r $SATELLITE_DATA_ORIGIN/$SATELLITE_DATA_SET/$tile $WORK/$SATELLITE_DATA_SET/32
-    srun -N1-1 cp -r $SATELLITE_DATA_ORIGIN/$LUCAS_DATA_SET/$tile $WORK/$LUCAS_DATA_SET/32
+    srun -N1-1 cp -r $SATELLITE_DATA_ORIGIN$SATELLITE_DATA_SET/$tile $WORK/$SATELLITE_DATA_SET/32
+    srun -N1-1 cp -r $SATELLITE_DATA_ORIGIN$LUCAS_DATA_SET/$tile $WORK/$LUCAS_DATA_SET/32
 done
 
-du -sh $WORK
+srun du -sh $WORK
 
 echo "dirs in xfs mount:"
-srun /bin/hostname ; ls -R $WORK
+srun -N1 ls $WORK
+srun -N1 ls $WORK/landsatXMGRS_ENVI
+srun -N1 ls $WORK/landsatXMGRS_ENVI/32
+srun -N1 ls $WORK/lucasMGRS
 
 # Custom conf directory for this job. we use a subdir from the xfs dir
 export FLINK_CONF_DIR="${CONFIG_FOLDER}"/flink
@@ -139,11 +144,19 @@ echo
 
 echo "Starting master on ${FLINK_MASTER} and slaves on ${FLINK_SLAVES[@]}."
 
+
+
+srun --nodes=1-1 --nodelist=${FLINK_MASTER} "${FLINK_HOME}"/bin/taskmanager.sh stop
+srun --nodes=1-1 --nodelist=${FLINK_MASTER} "${FLINK_HOME}"/bin/jobmanager.sh stop
+sleep 2
 srun --nodes=1-1 --nodelist=${FLINK_MASTER} "${FLINK_HOME}"/bin/jobmanager.sh start cluster
 
 for slave in ${FLINK_SLAVES[@]}; do
 #    srun --nodes=1-1 --nodelist=$slave mkdir $LOCAL_TMP_DIR
 #    srun --nodes=1-1 --nodelist=$slave /bin/hostname
+    srun --nodes=1-1 --nodelist=$slave "${FLINK_HOME}"/bin/taskmanager.sh stop
+    srun --nodes=1-1 --nodelist=$slave "${FLINK_HOME}"/bin/jobmanager.sh stop
+    sleep 2
     srun --nodes=1-1 --nodelist=$slave "${FLINK_HOME}"/bin/taskmanager.sh start
 done
 
@@ -154,7 +167,7 @@ sleep 20
 #"${FLINK_HOME}"/bin/flink run "${FLINK_HOME}"/examples/EnumTrianglesBasic.jar file://$HOME/flink-slurm/edges.csv file://$HOME/flink-slurm/triangles.csv
 
 #time "${FLINK_HOME}"/bin/pyflink3.sh /scratch/bzcseibe/geoms/gms-software2/nov-2016/gms-hu-inf/src/gms/staging/CubeInputWithBCVariables.py - $CONFIG_FOLDER/flink/gms-job.cfg
-time "${FLINK_HOME}"/bin/pyflink3.sh /scratch/bzcseibe/geoms/gms-software2/nov-2016/gms-hu-inf/src/gms/staging/ClassificationDriverWithBCVars.py - $FLINK_JOB_CONF_FILE
+time "${FLINK_HOME}"/bin/pyflink3.sh /scratch/bzcseibe/geoms/gms-software2/nov-2016/gms-hu-inf/src/gms/staging/CubeInputWithBCVariables.py - $FLINK_JOB_CONF_FILE
 
 echo "Stopping flink cluster..."
 
