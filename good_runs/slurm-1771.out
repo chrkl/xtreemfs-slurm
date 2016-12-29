@@ -1,0 +1,343 @@
+Setup: Checking variables and environment
+Starting XtreemFS 1771 on slurm...
+Preparing configurations for DIR, MRC and OSD*
+Starting XtreemFS DIR Server on cumu01-00: DIR ...success
+Starting XtreemFS MRC Server on cumu01-00: MRC ...success
+Starting XtreemFS OSD Server on cumu01-01: OSD1 ...success
+Starting XtreemFS OSD Server on cumu01-02: OSD2 ...success
+Starting XtreemFS OSD Server on cumu01-03: OSD3 ...success
+Starting XtreemFS OSD Server on cumu01-04: OSD4 ...success
+Starting XtreemFS OSD Server on cumu01-05: OSD5 ...success
+Trying to create the volume: cumu01-00/volume-1771
+
+Using options:
+  Owner:			bzcseibe
+  Owning group:			csr
+  Mode:				777
+  Access Control Policy:	POSIX
+  Quota:			0
+
+  Default striping policy:		RAID0
+  Default stripe size (object size):	128
+  Default stripe width (# OSDs):	1
+
+Successfully created volume "volume-1771" at MRC: cumu01-00/volume-1771
+srun -k -N1-1 --nodelist="cumu01-00" /scratch/bzcseibe/git/xtreemfs/cpp/build/mount.xtreemfs  cumu01-00/volume-1771 "/local/bzcseibe/xtreemfs/1771/mnt"
+srun -k -N1-1 --nodelist="cumu01-01" /scratch/bzcseibe/git/xtreemfs/cpp/build/mount.xtreemfs  cumu01-00/volume-1771 "/local/bzcseibe/xtreemfs/1771/mnt"
+srun -k -N1-1 --nodelist="cumu01-02" /scratch/bzcseibe/git/xtreemfs/cpp/build/mount.xtreemfs  cumu01-00/volume-1771 "/local/bzcseibe/xtreemfs/1771/mnt"
+srun -k -N1-1 --nodelist="cumu01-03" /scratch/bzcseibe/git/xtreemfs/cpp/build/mount.xtreemfs  cumu01-00/volume-1771 "/local/bzcseibe/xtreemfs/1771/mnt"
+srun -k -N1-1 --nodelist="cumu01-04" /scratch/bzcseibe/git/xtreemfs/cpp/build/mount.xtreemfs  cumu01-00/volume-1771 "/local/bzcseibe/xtreemfs/1771/mnt"
+srun -k -N1-1 --nodelist="cumu01-05" /scratch/bzcseibe/git/xtreemfs/cpp/build/mount.xtreemfs  cumu01-00/volume-1771 "/local/bzcseibe/xtreemfs/1771/mnt"
+Starting Watchdog for XtreemFS on cumu01-00 ...success
+Starting Watchdog for XtreemFS on cumu01-01 ...success
+Starting Watchdog for XtreemFS on cumu01-02 ...success
+Starting Watchdog for XtreemFS on cumu01-03 ...success
+Starting Watchdog for XtreemFS on cumu01-04 ...success
+Starting Watchdog for XtreemFS on cumu01-05 ...success
+DIR HOST: cumu01-00
+MRC HOST: cumu01-00
+OSD1 HOST: cumu01-01
+OSD2 HOST: cumu01-02
+OSD3 HOST: cumu01-03
+OSD4 HOST: cumu01-04
+OSD5 HOST: cumu01-05
+VOLUME: volume-1771
+MOUNT PATH: /local/bzcseibe/xtreemfs/1771/mnt
+JOB ENV FILE: /home/csr/bzcseibe/xtreemfs-slurm/slurm-1771/job_env.sh
+work: /local/bzcseibe/xtreemfs/1771/mnt
+python:
+/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/bin/python
+
+real	8m58.281s
+user	0m0.048s
+sys	0m0.016s
+41G	/local/bzcseibe/xtreemfs/1771/mnt
+
+-----BEGIN FLINK CONFIG-----
+jobmanager.rpc.address: cumu01-00
+jobmanager.heab.mb: 25673
+taskmanager.heap.mb: 12836
+taskmanager.tmp.dirs: /local/bzcseibe/flink-tmp
+taskmanager.numberOfTaskSlots: 16
+number of nodes: 5
+parallelism.default: 80
+-----END FLINK CONFIG---
+
+"32/32UPV 32/32UPE 32/32UPD 32/32UPC"
+job configuration file:
+{
+    "lucas": {
+        "product": "lucas",
+        "path": "/local/bzcseibe/xtreemfs/1771/mnt/lucasMGRS",
+        "shape": [
+            "32/32UPV",
+            "32/32UPE",
+            "32/32UPD",
+            "32/32UPC"
+        ]
+    },
+    "compositor": {
+        "end-date": "2016-12-31",
+        "start-date": "2014-01-01",
+        "buffer-years": 0
+    },
+    "parallelism": "4",
+    "input": {
+        "sr_suffix": "_sr.tif",
+        "stack": "spectral",
+        "path": "/local/bzcseibe/xtreemfs/1771/mnt/landsatXMGRS_ENVI",
+        "shape": [
+            "32/32UPV",
+            "32/32UPE",
+            "32/32UPD",
+            "32/32UPC"
+        ],
+        "wavekeys": [
+            "480.0",
+            "560.0",
+            "655.0",
+            "865.0",
+            "1585.0",
+            "2200.0",
+            "cfmask"
+        ],
+        "qa_suffix": "_qa.tif",
+        "edge_length": "256",
+        "useledaps": true,
+        "splits": true,
+        "align": true,
+        "filter": ".*"
+    },
+    "output": {
+        "path": "/scratch/bzcseibe/geoms/satellite_data/gmsdb/cumulus_output"
+    },
+    "samples-path": "None",
+    "local": false
+}Starting master on cumu01-00 and slaves on cumu01-01 cumu01-02 cumu01-03 cumu01-04 cumu01-05.
+No taskmanager daemon to stop on host cumu01-00.
+No taskmanager daemon to stop on host cumu01-00.
+No taskmanager daemon to stop on host cumu01-00.
+No taskmanager daemon to stop on host cumu01-00.
+No taskmanager daemon to stop on host cumu01-00.
+No taskmanager daemon to stop on host cumu01-00.
+No jobmanager daemon to stop on host cumu01-00.
+No jobmanager daemon to stop on host cumu01-00.
+No jobmanager daemon to stop on host cumu01-00.
+No jobmanager daemon to stop on host cumu01-00.
+No jobmanager daemon to stop on host cumu01-00.
+No jobmanager daemon to stop on host cumu01-00.
+Starting jobmanager daemon on host cumu01-00.
+/bin/mkdir: das Verzeichnis »/local/bzcseibe/flink-tmp“ kann nicht angelegt werden: Die Datei existiert bereits
+srun: error: cumu01-01: task 0: Exited with exit code 1
+Starting taskmanager daemon on host cumu01-00.
+/bin/mkdir: das Verzeichnis »/local/bzcseibe/flink-tmp“ kann nicht angelegt werden: Die Datei existiert bereits
+srun: error: cumu01-02: task 0: Exited with exit code 1
+Starting taskmanager daemon on host cumu01-00.
+/bin/mkdir: das Verzeichnis »/local/bzcseibe/flink-tmp“ kann nicht angelegt werden: Die Datei existiert bereits
+srun: error: cumu01-03: task 0: Exited with exit code 1
+Starting taskmanager daemon on host cumu01-00.
+/bin/mkdir: das Verzeichnis »/local/bzcseibe/flink-tmp“ kann nicht angelegt werden: Die Datei existiert bereits
+srun: error: cumu01-04: task 0: Exited with exit code 1
+Starting taskmanager daemon on host cumu01-00.
+/bin/mkdir: das Verzeichnis »/local/bzcseibe/flink-tmp“ kann nicht angelegt werden: Die Datei existiert bereits
+srun: error: cumu01-05: task 0: Exited with exit code 1
+Starting taskmanager daemon on host cumu01-00.
+12/20/2016 11:27:25	Job execution switched to status RUNNING.
+12/20/2016 11:27:25	DataSource (CustomSource)(1/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(1/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(2/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(2/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(3/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(3/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(4/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(4/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(1/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(1/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(2/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(2/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(3/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(3/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(4/4) switched to SCHEDULED 
+12/20/2016 11:27:25	DataSource (CustomSource)(4/4) switched to DEPLOYING 
+12/20/2016 11:27:25	DataSource (CustomSource)(3/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(3/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(1/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(1/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(4/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(4/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(2/4) switched to RUNNING 
+12/20/2016 11:27:25	DataSource (CustomSource)(2/4) switched to RUNNING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(1/4) switched to SCHEDULED 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(4/4) switched to SCHEDULED 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(2/4) switched to SCHEDULED 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(3/4) switched to SCHEDULED 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(4/4) switched to DEPLOYING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(1/4) switched to DEPLOYING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(2/4) switched to DEPLOYING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(3/4) switched to DEPLOYING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(4/4) switched to RUNNING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(1/4) switched to RUNNING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(2/4) switched to RUNNING 
+12/20/2016 11:27:31	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(3/4) switched to RUNNING 
+12/20/2016 11:27:31	DataSource (CustomSource)(3/4) switched to FINISHED 
+12/20/2016 11:27:31	DataSource (CustomSource)(2/4) switched to FINISHED 
+12/20/2016 11:27:31	DataSource (CustomSource)(4/4) switched to FINISHED 
+12/20/2016 11:27:31	DataSource (CustomSource)(1/4) switched to FINISHED 
+12/20/2016 11:59:21	DataSource (CustomSource)(1/4) switched to FINISHED 
+12/20/2016 12:07:01	DataSource (CustomSource)(2/4) switched to FINISHED 
+12/20/2016 12:08:36	DataSource (CustomSource)(4/4) switched to FINISHED 
+12/20/2016 12:14:05	DataSource (CustomSource)(3/4) switched to FINISHED 
+12/20/2016 12:14:05	MapPartition (PythonMap)(1/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonMap)(4/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonMap)(1/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonMap)(2/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonMap)(4/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(2/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonMap)(3/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonMap)(3/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(1/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(4/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(2/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(3/4) switched to SCHEDULED 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(3/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(4/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(1/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonMap)(2/4) switched to DEPLOYING 
+12/20/2016 12:14:05	MapPartition (PythonMap)(3/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonMap)(4/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(4/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonMap)(1/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(1/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(2/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonMap)(2/4) switched to RUNNING 
+12/20/2016 12:14:05	MapPartition (PythonFlatMap -> PythonMap)(3/4) switched to RUNNING 
+12/20/2016 12:14:11	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(3/4) switched to SCHEDULED 
+12/20/2016 12:14:11	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(3/4) switched to DEPLOYING 
+12/20/2016 12:14:11	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(1/4) switched to SCHEDULED 
+12/20/2016 12:14:11	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(1/4) switched to DEPLOYING 
+12/20/2016 12:14:11	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(3/4) switched to RUNNING 
+12/20/2016 12:14:11	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(1/4) switched to RUNNING 
+12/20/2016 12:14:12	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(2/4) switched to SCHEDULED 
+12/20/2016 12:14:12	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(2/4) switched to DEPLOYING 
+12/20/2016 12:14:12	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(2/4) switched to RUNNING 
+12/20/2016 12:14:12	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(4/4) switched to SCHEDULED 
+12/20/2016 12:14:12	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(4/4) switched to DEPLOYING 
+12/20/2016 12:14:12	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(4/4) switched to RUNNING 
+12/20/2016 12:14:36	MapPartition (PythonMap)(4/4) switched to FINISHED 
+12/20/2016 12:14:36	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(4/4) switched to FINISHED 
+12/20/2016 12:14:36	GroupReduce (PythonGroupReducePreStep)(1/1) switched to SCHEDULED 
+12/20/2016 12:14:36	GroupReduce (PythonGroupReducePreStep)(1/1) switched to DEPLOYING 
+12/20/2016 12:14:36	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(4/4) switched to FINISHED 
+12/20/2016 12:14:36	GroupReduce (PythonGroupReducePreStep)(1/1) switched to RUNNING 
+12/20/2016 12:14:36	MapPartition (PythonGroupReduce)(1/1) switched to SCHEDULED 
+12/20/2016 12:14:36	MapPartition (PythonGroupReduce)(1/1) switched to DEPLOYING 
+12/20/2016 12:14:36	MapPartition (PythonGroupReduce)(1/1) switched to RUNNING 
+12/20/2016 12:14:40	MapPartition (PythonMap)(1/4) switched to FINISHED 
+12/20/2016 12:14:40	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(1/4) switched to FINISHED 
+12/20/2016 12:14:40	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(1/4) switched to FINISHED 
+12/20/2016 12:15:03	MapPartition (PythonMap)(3/4) switched to FINISHED 
+12/20/2016 12:15:03	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(3/4) switched to FINISHED 
+12/20/2016 12:15:03	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(3/4) switched to FINISHED 
+12/20/2016 12:15:06	MapPartition (PythonMap)(2/4) switched to FINISHED 
+12/20/2016 12:15:06	CHAIN Join (Join at createDefaultJoin(PythonPlanBinder.java:639)) -> Map (DefaultJoinPostStep)(2/4) switched to FINISHED 
+12/20/2016 12:15:06	MapPartition (PythonJoin -> PythonFlatMap -> PythonFlatMap)(2/4) switched to FINISHED 
+12/20/2016 12:15:06	GroupReduce (PythonGroupReducePreStep)(1/1) switched to FINISHED 
+12/20/2016 12:15:08	MapPartition (PythonGroupReduce)(1/1) switched to FINISHED 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(1/4) switched to SCHEDULED 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(4/4) switched to SCHEDULED 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(2/4) switched to SCHEDULED 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(3/4) switched to SCHEDULED 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(4/4) switched to DEPLOYING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(1/4) switched to DEPLOYING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(2/4) switched to DEPLOYING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(3/4) switched to DEPLOYING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(3/4) switched to RUNNING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(2/4) switched to RUNNING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(4/4) switched to RUNNING 
+12/20/2016 12:16:19	GroupReduce (PythonGroupReducePreStep)(1/4) switched to RUNNING 
+12/20/2016 12:16:19	MapPartition (PythonFlatMap -> PythonMap)(1/4) switched to FINISHED 
+12/20/2016 12:16:19	MapPartition (PythonFlatMap -> PythonMap)(3/4) switched to FINISHED 
+12/20/2016 12:16:20	MapPartition (PythonFlatMap -> PythonMap)(2/4) switched to FINISHED 
+12/20/2016 12:16:20	MapPartition (PythonFlatMap -> PythonMap)(4/4) switched to FINISHED 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(3/4) switched to SCHEDULED 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(4/4) switched to SCHEDULED 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(3/4) switched to DEPLOYING 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(4/4) switched to DEPLOYING 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(2/4) switched to SCHEDULED 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(2/4) switched to DEPLOYING 
+12/20/2016 12:16:20	GroupReduce (PythonGroupReducePreStep)(2/4) switched to FINISHED 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(4/4) switched to RUNNING 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(1/4) switched to SCHEDULED 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(3/4) switched to RUNNING 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(1/4) switched to DEPLOYING 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(2/4) switched to RUNNING 
+12/20/2016 12:16:20	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(1/4) switched to RUNNING 
+12/20/2016 12:16:20	GroupReduce (PythonGroupReducePreStep)(3/4) switched to FINISHED 
+12/20/2016 12:16:20	GroupReduce (PythonGroupReducePreStep)(1/4) switched to FINISHED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(2/4) switched to SCHEDULED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(2/4) switched to DEPLOYING 
+12/20/2016 12:16:25	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(2/4) switched to FINISHED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(2/4) switched to RUNNING 
+12/20/2016 12:16:25	DataSink (Print to System.out)(2/4) switched to FINISHED 
+12/20/2016 12:16:25	GroupReduce (PythonGroupReducePreStep)(4/4) switched to FINISHED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(3/4) switched to SCHEDULED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(3/4) switched to DEPLOYING 
+12/20/2016 12:16:25	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(3/4) switched to FINISHED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(3/4) switched to RUNNING 
+12/20/2016 12:16:25	DataSink (Print to System.out)(3/4) switched to FINISHED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(4/4) switched to SCHEDULED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(4/4) switched to DEPLOYING 
+12/20/2016 12:16:25	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(4/4) switched to FINISHED 
+12/20/2016 12:16:25	DataSink (Print to System.out)(4/4) switched to RUNNING 
+12/20/2016 12:16:25	DataSink (Print to System.out)(4/4) switched to FINISHED 
+12/20/2016 12:16:26	DataSink (Print to System.out)(1/4) switched to SCHEDULED 
+12/20/2016 12:16:26	DataSink (Print to System.out)(1/4) switched to DEPLOYING 
+12/20/2016 12:16:26	CHAIN MapPartition (PythonGroupReduce -> PythonFlatMap) -> Map (PrintSinkPreStep)(1/4) switched to FINISHED 
+12/20/2016 12:16:26	DataSink (Print to System.out)(1/4) switched to RUNNING 
+12/20/2016 12:16:26	DataSink (Print to System.out)(1/4) switched to FINISHED 
+12/20/2016 12:16:26	Job execution switched to status FINISHED.
+/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/lib/python3.5/site-packages/sklearn/cross_validation.py:44: DeprecationWarning: This module was deprecated in version 0.18 in favor of the model_selection module into which all the refactored classes and functions are moved. Also note that the interface of the new CV iterators are different from that of this module. This module will be removed in 0.20.
+  "This module will be removed in 0.20.", DeprecationWarning)
+/nfs/scratch/bzcseibe/geoms/gms-software2/python_GFZ/python/lib/python3.5/site-packages/sklearn/grid_search.py:43: DeprecationWarning: This module was deprecated in version 0.18 in favor of the model_selection module into which all the refactored classes and functions are moved. This module will be removed in 0.20.
+  DeprecationWarning)
+
+real	49m10.849s
+user	0m20.800s
+sys	0m3.664s
+Stopping flink cluster...
+Stopping taskmanager daemon (pid: 22823) on host cumu01-00.
+Stopping taskmanager daemon (pid: 16115) on host cumu01-00.
+Stopping taskmanager daemon (pid: 16295) on host cumu01-00.
+Stopping taskmanager daemon (pid: 16634) on host cumu01-00.
+Stopping taskmanager daemon (pid: 11603) on host cumu01-00.
+Stopping jobmanager daemon (pid: 36335) on host cumu01-00.
+Setup: Checking variables and environment
+Stopping XtreemFS 1771 on slurm...
+Stopping Watchdog for XtreemFS on cumu01-00 ...success
+Stopping Watchdog for XtreemFS on cumu01-01 ...success
+Stopping Watchdog for XtreemFS on cumu01-02 ...success
+Stopping Watchdog for XtreemFS on cumu01-03 ...success
+Stopping Watchdog for XtreemFS on cumu01-04 ...success
+Stopping Watchdog for XtreemFS on cumu01-05 ...success
+Trying to delete the volume: cumu01-00/volume-1771
+Successfully deleted the volume "volume-1771" at MRC: cumu01-00:32636
+
+The disk space on the OSDs, occupied by the objects of the
+files of the deleted volume, is not freed yet.
+Run the tool 'xtfs_cleanup' to free it.
+Saving logs is active
+Stopping XtreemFS Process: OSD1 ...success
+Stopping XtreemFS Process: OSD2 ...success
+Stopping XtreemFS Process: OSD3 ...success
+Stopping XtreemFS Process: OSD4 ...success
+Stopping XtreemFS Process: OSD5 ...success
+Stopping XtreemFS Process: MRC ...success
+Stopping XtreemFS Process: DIR ...success
+Cleanup job folder incl. mount point
+Cleaning... cumu01-00 of JOB: 1771
+Cleaning... cumu01-01 of JOB: 1771
+Cleaning... cumu01-02 of JOB: 1771
+Cleaning... cumu01-03 of JOB: 1771
+Cleaning... cumu01-04 of JOB: 1771
+Cleaning... cumu01-05 of JOB: 1771
+Done.
