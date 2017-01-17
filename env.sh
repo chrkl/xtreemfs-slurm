@@ -19,7 +19,7 @@ __DEBUG=true
 
 GENERATE_CONFIGS=true
 SAME_DIR_AND_MRC_NODE=true
-XTREEMFS_DIRECTORY="/scratch/bzcseibe/git/xtreemfs"
+XTREEMFS_DIRECTORY="$HOME/xtreemfs"
 LOCAL_PATH="/local/$USER/xtreemfs"
 
 VOLUME_PARAMETER="" # e.g.: -a POSIX -p RAID0 -s 256 -w 1

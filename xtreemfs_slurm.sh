@@ -306,8 +306,6 @@ function start() {
       _MOUNT_OPTIONS="$_MOUNT_OPTIONS -d $DEBUG_CLIENT_LEVEL -l $LOCAL_DIR/$slurm_host-client.log"
     fi
 
-    echo "srun -k -N1-1 --nodelist=\"$slurm_host\" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $_MOUNT_OPTIONS $DIR_HOSTNAME/$VOLUME_NAME \"$LOCAL_MOUNT_PATH\""
-
     srun -k -N1-1 --nodelist="$slurm_host" $XTREEMFS_DIRECTORY/cpp/build/mount.xtreemfs $_MOUNT_OPTIONS $DIR_HOSTNAME/$VOLUME_NAME "$LOCAL_MOUNT_PATH"
     stopOnStartError $?
   done
